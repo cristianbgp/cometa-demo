@@ -2,12 +2,14 @@ import { SpeakerphoneIcon } from "@heroicons/react/outline";
 import { PlusCircleIcon, TrashIcon } from "@heroicons/react/solid";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import Error from "next/error";
 import Card from "../components/Card";
 import CollapseCard from "../components/CollapseCard";
 import Header from "../components/Header";
 import Layout from "../components/Layout";
 import PaymentButton from "../components/PaymentButton";
 import { usePaymentContext } from "../contexts/PaymentContext";
+import { getData } from "./api/all-data";
 
 function SelectedOrdersSection({ orders }) {
   const { selectedOrders, removeFromSelectedOrders, addToSelectedOrders } =
@@ -128,57 +130,20 @@ function PaymentSection() {
 }
 
 export async function getServerSideProps() {
-  const hash = "OcJn4jYChW";
-
-  const studentPromise = fetch(
-    "http://ec2-3-239-221-74.compute-1.amazonaws.com:8000/api/v1/students/3b35fb50-3d5e-41b3-96d6-c5566141fab0/",
-    {
-      headers: {
-        hash,
-      },
-    }
-  ).then((res) => res.json());
-  const orderPromise = fetch(
-    "http://ec2-3-239-221-74.compute-1.amazonaws.com:8000/api/v1/students/3b35fb50-3d5e-41b3-96d6-c5566141fab0/orders/",
-    {
-      headers: {
-        hash,
-      },
-    }
-  ).then((res) => res.json());
-
-  // eslint-disable-next-line no-undef
-  const [student, orders] = await Promise.all([studentPromise, orderPromise]);
-
-  const [paidOrders, pendingOrders, futureOrders] = orders.reduce(
-    (acc, order) => {
-      if (order.status === "PAID") {
-        acc[0].push(order);
-      } else if (order.status === "DUE") {
-        acc[1].push(order);
-      } else if (order.status === "OUTSTANDING") {
-        acc[2].push(order);
-      }
-      return acc;
-    },
-    [[], [], []]
-  );
-
-  return {
-    props: {
-      data: {
-        student,
-        orders: {
-          paidOrders,
-          pendingOrders,
-          futureOrders,
-        },
-      },
-    },
-  };
+  try {
+    const data = await getData();
+    return { props: { data } };
+  } catch (error) {
+    console.error(error);
+    return { props: { error: error.message } };
+  }
 }
 
-export default function PaymentPage({ data }) {
+export default function PaymentPage({ data, error }) {
+  if (error) {
+    return <Error statusCode="500" />;
+  }
+
   const { student, orders } = data;
   const { first_name, last_name, cohort } = student;
 

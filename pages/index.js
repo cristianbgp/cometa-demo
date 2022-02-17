@@ -7,65 +7,31 @@ import {
 } from "../components/Installments";
 import Summary from "../components/Summary";
 import PaymentButton from "../components/PaymentButton";
+import { getData } from "./api/all-data";
 import { useRouter } from "next/router";
+import Error from "next/error";
 
 export async function getServerSideProps() {
-  const hash = "OcJn4jYChW";
-
-  const studentPromise = fetch(
-    "http://ec2-3-239-221-74.compute-1.amazonaws.com:8000/api/v1/students/3b35fb50-3d5e-41b3-96d6-c5566141fab0/",
-    {
-      headers: {
-        hash,
-      },
-    }
-  ).then((res) => res.json());
-  const orderPromise = fetch(
-    "http://ec2-3-239-221-74.compute-1.amazonaws.com:8000/api/v1/students/3b35fb50-3d5e-41b3-96d6-c5566141fab0/orders/",
-    {
-      headers: {
-        hash,
-      },
-    }
-  ).then((res) => res.json());
-
-  // eslint-disable-next-line no-undef
-  const [student, orders] = await Promise.all([studentPromise, orderPromise]);
-
-  const [paidOrders, pendingOrders, futureOrders] = orders.reduce(
-    (acc, order) => {
-      if (order.status === "PAID") {
-        acc[0].push(order);
-      } else if (order.status === "DUE") {
-        acc[1].push(order);
-      } else if (order.status === "OUTSTANDING") {
-        acc[2].push(order);
-      }
-      return acc;
-    },
-    [[], [], []]
-  );
-
-  return {
-    props: {
-      data: {
-        student,
-        orders: {
-          paidOrders,
-          pendingOrders,
-          futureOrders,
-        },
-      },
-    },
-  };
+  try {
+    const data = await getData();
+    return { props: { data } };
+  } catch (error) {
+    console.error(error);
+    return { props: { error: error.message } };
+  }
 }
 
-export default function IndexPage({ data }) {
+export default function IndexPage({ data, error }) {
+  const router = useRouter();
+
+  if (error) {
+    return <Error statusCode="500" />;
+  }
+
   const {
     student,
     orders: { paidOrders, pendingOrders, futureOrders },
   } = data;
-  const router = useRouter();
 
   const goToPaymentPage = () => {
     router.push({ pathname: "/payment" });
