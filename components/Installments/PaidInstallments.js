@@ -4,7 +4,6 @@ import { es } from "date-fns/locale";
 import CollapseCard from "./../CollapseCard";
 
 function PaidItem({ order }) {
-  console.log(order);
   let totalPrice = Number(order.price);
   if (Boolean(order.interest) && order.interest !== "None") {
     totalPrice = totalPrice + Number(order.interest);

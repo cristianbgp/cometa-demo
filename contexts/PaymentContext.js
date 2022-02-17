@@ -2,7 +2,7 @@ import { createContext, useContext, useMemo, useState } from "react";
 
 const PaymentContext = createContext();
 
-export function PaymentContextProvider({ children }) {
+export function PaymentContextProvider({ children, value }) {
   const [selectedOrders, setSelectedOrders] = useState([]);
 
   const addToSelectedOrders = (order) => {
@@ -37,6 +37,7 @@ export function PaymentContextProvider({ children }) {
         addToSelectedOrders,
         removeFromSelectedOrders,
         currency,
+        ...value,
       }}
     >
       {children}
