@@ -18,3 +18,20 @@ a {
 * {
   box-sizing: border-box;
 }
+
+input:checked + .custom-checkbox {
+  @apply border-gray-800;
+  @apply bg-gray-800;
+}
+
+input:focus + .custom-checkbox {
+  @apply border-gray-800;
+}
+
+input:hover + .custom-checkbox {
+  @apply border-gray-800;
+}
+
+input:checked + .custom-checkbox svg {
+  @apply block;
+}

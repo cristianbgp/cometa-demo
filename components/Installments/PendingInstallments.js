@@ -1,5 +1,6 @@
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import CheckBox from "../Checkbox";
 import { usePaymentContext } from "./../../contexts/PaymentContext";
 import CollapseCard from "./../CollapseCard";
 
@@ -42,12 +43,7 @@ function PendingItem({ order }) {
             </span>
           )}
         </div>
-        <input
-          type="checkbox"
-          defaultChecked={shouldBeChecked}
-          className="h-9 w-9"
-          onChange={handleOnChange}
-        />
+        <CheckBox shouldBeChecked={shouldBeChecked} onChange={handleOnChange} />
       </div>
     </div>
   );
